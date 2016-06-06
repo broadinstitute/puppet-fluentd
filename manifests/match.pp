@@ -8,8 +8,12 @@ define fluentd::match (
     $order    = undef,
 ) {
 
+    if ! defined(Class['fluentd']) {
+        fail('You must include the fluentd base class before using any fluentd defined resources')
+    }
+
     concat::fragment { "match_${title}":
-        target  => "/etc/td-agent/config.d/${configfile}.conf",
+        target  => "${fluentd::config_dir}/config.d/${configfile}.conf",
         require => Package["${fluentd::package_name}"],
         content => template('fluentd/match.erb'),
         order   => $order,

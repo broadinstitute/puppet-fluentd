@@ -12,13 +12,17 @@ define fluentd::install_plugin::file (
     $ensure      = 'present',
     $plugin_name = $name,
 ) {
-    file {
-        "/etc/td-agent/plugin/${plugin_name}":
-            ensure => $ensure,
-            owner  => td-agent,
-            group  => td-agent,
-            mode   => '0640',
-            source => "puppet:///fluentd/plugins/${plugin_name}",
-            notify => Service["${::fluentd::service_name}"];
+
+    if ! defined(Class['fluentd']) {
+        fail('You must include the fluentd base class before using any fluentd defined resources')
+    }
+
+    file { "${fluentd::config_dir}/plugin/${plugin_name}":
+        ensure => $ensure,
+        owner  => $fluentd::config_owner,
+        group  => $fluentd::config_group,
+        mode   => '0640',
+        source => "puppet:///fluentd/plugins/${plugin_name}",
+        notify => Service[$fluentd::service_name],
     }
 }

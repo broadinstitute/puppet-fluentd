@@ -1,19 +1,27 @@
-# yum.pp 
+# yum.pp
 
 # Class: fluentd::install_repo::yum ()
 #
 #
 class fluentd::install_repo::yum (
-    $key = $fluentd::params::yum_key_url,
-    ) {
+    $key = $fluentd::params::repo_keyurl,
+) {
+    if ! defined(Class['fluentd']) {
+        fail('You must include the fluentd base class before using any fluentd defined resources')
+    }
+
+    $repo_desc     = $fluentd::repo_desc
+    $repo_gpgcheck = $fluentd::repo_gpgcheck
+    $repo_name     = $fluentd::repo_name
+    $repo_url      = $fluentd::repo_url
 
     # Sorry for the different naming of the Repository between debian and redhat.
     # But I dont want rename it to avoid a duplication.
-    yumrepo { 'treasuredata':
-        descr => 'Treasure Data',
-        baseurl => 'http://packages.treasuredata.com/redhat/$basearch',
-        gpgkey => 'http://packages.treasuredata.com/redhat/RPM-GPG-KEY-td-agent',
-        gpgcheck => 1,
+    yumrepo { $repo_name:
+        descr    => $repo_desc,
+        baseurl  => $repo_url,
+        gpgkey   => $key,
+        gpgcheck => $repo_gpgcheck,
     }
 
 }

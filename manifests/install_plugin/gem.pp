@@ -12,10 +12,14 @@ define fluentd::install_plugin::gem (
     $plugin_name = $name,
 ) {
 
+    if ! defined(Class['fluentd']) {
+        fail('You must include the fluentd base class before using any fluentd defined resources')
+    }
+
     package { $plugin_name:
       ensure   => $ensure,
       provider => 'fluentgem',
-      notify   => Service["${fluentd::service_name}"];
+      notify   => Service[$fluentd::service_name],
     }
 
 }

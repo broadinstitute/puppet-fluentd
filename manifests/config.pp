@@ -2,7 +2,11 @@
 #
 #
 class fluentd::config() {
-    file { '/etc/td-agent/td-agent.conf' :
+    if ! defined(Class['fluentd']) {
+        fail('You must include the fluentd base class before using any fluentd defined resources')
+    }
+
+    file { "${fluentd::config_dir}/td-agent.conf" :
         ensure  => file,
         owner   => 'root',
         group   => 'root',
@@ -10,10 +14,10 @@ class fluentd::config() {
         notify  => Class['fluentd::service'],
     }
 
-    file {'/etc/td-agent/config.d':
-        ensure  => 'directory',
-        owner   => 'td-agent',
-        group   => 'td-agent',
-        mode    => '0750',
+    file { "${fluentd::config_dir}/config.d":
+        ensure => 'directory',
+        owner  => $fluentd::config_owner,
+        group  => $fluentd::config_group,
+        mode   => '0750',
     }
 }
